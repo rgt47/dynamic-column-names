@@ -228,8 +228,6 @@ full power of quasiquotation for complex metaprogramming.
 
 ---
 
-![](media/images/ambiance1.jpg){.img-fluid width=100%}
-
 ## Approach 4: Modern Tidyverse with Glue Syntax
 
 Starting with dplyr 1.0 (June 2020), a cleaner syntax emerged using
@@ -327,6 +325,8 @@ data, or when you want to inspect/log expressions before evaluation.
 
 ---
 
+![](media/images/datatable-logo.png){.img-fluid width=30% fig-align="center"}
+
 ## Approach 6: data.table
 
 The data.table package has its own `:=` operator that predates tidyverse
@@ -377,7 +377,7 @@ data.
 
 ---
 
-![](media/images/ambiance2.jpg){.img-fluid width=100%}
+![](media/images/collapse-logo.png){.img-fluid width=30% fig-align="center"}
 
 ## Approach 7: collapse
 
