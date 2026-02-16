@@ -174,6 +174,8 @@ unacceptable.
 
 ---
 
+![](media/images/tidyverse-logo.png){.img-fluid width=30% fig-align="center"}
+
 ## Approach 3: Classic Tidyverse with `!!` and `:=`
 
 The tidyverse introduced tidy evaluation to handle dynamic column names. Two
