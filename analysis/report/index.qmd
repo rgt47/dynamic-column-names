@@ -2,7 +2,7 @@
 title: "Dynamic Column Names in R: Seven Approaches Compared"
 author: "Zenn"
 date: "2026-02-16"
-categories: [r, tidyverse, dplyr, data.table, programming]
+categories: [r, tidyverse, dplyr, rlang, data.table, collapse, metaprogramming]
 description: |
   A comprehensive guide to adding columns with programmatically-generated
   names in R dataframes. Covers base R, tidyverse (classic and modern),
