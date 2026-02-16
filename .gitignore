@@ -1,0 +1,69 @@
+# R specific
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+.Rproj.user/
+
+# renv
+renv/library/
+renv/local/
+renv/cellar/
+renv/lock/
+renv/python/
+renv/staging/
+.cache/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Log files
+*.log
+
+# Archives
+*.tar.gz
+*.zip
+
+# Large data files that shouldn't be in container
+analysis/data/raw_data/*.csv
+analysis/data/derived_data/*.rds
+
+# Generated Quarto output (but keep rendered figures)
+analysis/report/*.html
+analysis/report/*.pdf
+analysis/report/*.tex
+analysis/report/*_files/
+
+# Note: PNG and PDF figures ARE committed to git for blog readability
+# Large figures (>50MB) should use GitHub LFS if needed
+
+# Docker
+.dockerignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+ENV/
+
+# Node.js
+node_modules/
+npm-debug.log*

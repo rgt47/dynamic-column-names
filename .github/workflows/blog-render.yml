@@ -1,0 +1,113 @@
+name: Render Blog Post (Simple)
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'analysis/report/**'
+      - 'renv.lock'
+      - 'Dockerfile'
+      - '.github/workflows/blog-render.yml'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'analysis/report/**'
+      - 'renv.lock'
+      - 'Dockerfile'
+
+jobs:
+  render-blog:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # Step 3: Build Docker image
+      - name: Build Docker image
+        run: |
+          echo "Building computational environment..."
+          docker build -t blog-env .
+          echo "Docker image built successfully"
+
+      # Step 4: Restore R packages from renv.lock
+      - name: Restore R packages
+        run: |
+          echo "Restoring R packages from renv.lock..."
+          docker run --rm \
+            -v ${{ github.workspace }}:/home/analyst/project \
+            -w /home/analyst/project \
+            --user root \
+            blog-env bash -c 'chown -R analyst:analyst /home/analyst/project && mkdir -p /home/analyst/project/renv && chown -R analyst:analyst /home/analyst/project/renv && su - analyst -c "cd /home/analyst/project && Rscript -e \"options(warn=1); renv::restore(prompt=FALSE)\"" 2>&1'
+
+      # Step 5: Render Quarto blog post
+      - name: Render Quarto report
+        run: |
+          echo "Rendering Quarto blog post..."
+          docker run --rm \
+            -v ${{ github.workspace }}:/home/analyst/project \
+            -w /home/analyst/project \
+            --user root \
+            blog-env bash -c 'chown -R analyst:analyst /home/analyst/project && su - analyst -c "cd /home/analyst/project && quarto render analysis/report/index.qmd --to html 2>&1" || { echo "Rendering failed - check code and image paths"; exit 1; }'
+
+      # Step 6: Verify rendered output
+      - name: Verify rendered output
+        run: |
+          echo "Checking rendered HTML..."
+          if [ -f "analysis/report/index.html" ]; then
+            SIZE=$(stat -c%s "analysis/report/index.html" 2>/dev/null || stat -f%z "analysis/report/index.html" 2>/dev/null)
+            if [ "$SIZE" -gt 1000 ]; then
+              echo "Blog post rendered successfully ($SIZE bytes)"
+              exit 0
+            else
+              echo "Rendered HTML is too small (likely empty)"
+              exit 1
+            fi
+          else
+            echo "Rendered HTML not found at analysis/report/index.html"
+            exit 1
+          fi
+
+      # Step 7: Upload rendered report as artifact
+      - name: Upload rendered report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-blog-post
+          path: analysis/report/index.html
+          retention-days: 30
+
+      # Step 8: Create success summary
+      - name: Create success summary
+        if: success()
+        run: |
+          echo "## Blog Post Rendered Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Output Location:** analysis/report/index.html" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**What was tested:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Docker environment built" >> $GITHUB_STEP_SUMMARY
+          echo "- R packages restored from renv.lock" >> $GITHUB_STEP_SUMMARY
+          echo "- Quarto document rendered to HTML" >> $GITHUB_STEP_SUMMARY
+          echo "- Output file verified" >> $GITHUB_STEP_SUMMARY
+
+      # Step 9: Create failure summary
+      - name: Create failure summary
+        if: failure()
+        run: |
+          echo "## Blog Post Rendering Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Possible issues:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Syntax error in Quarto - Check analysis/report/index.qmd for YAML or markdown issues" >> $GITHUB_STEP_SUMMARY
+          echo "2. Missing images - Verify image paths are correct and files exist" >> $GITHUB_STEP_SUMMARY
+          echo "3. Missing packages - Check renv.lock has required packages" >> $GITHUB_STEP_SUMMARY
+          echo "4. R code error - Review R code in analysis/report/index.qmd" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Local debugging:**" >> $GITHUB_STEP_SUMMARY
+          echo "Run: make docker-run  # Start interactive session" >> $GITHUB_STEP_SUMMARY
+          echo "Then: cd analysis/report && quarto render index.qmd --to html" >> $GITHUB_STEP_SUMMARY

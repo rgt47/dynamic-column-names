@@ -1,0 +1,33 @@
+model,mpg,cyl,disp,hp,drat,wt,qsec,vs,am,gear,carb,weight_kg,power_kw,cyl_factor,am_label,vs_label,speed_category
+Mazda RX4,21,6,160,110,3.9,2.62,16.46,0,1,4,4,1188.432,82.06,6-cyl,Manual,V-shaped,Medium
+Mazda RX4 Wag,21,6,160,110,3.9,2.875,17.02,0,1,4,4,1304.1000000000001,82.06,6-cyl,Manual,V-shaped,Medium
+Datsun 710,22.8,4,108,93,3.85,2.32,18.61,1,1,4,1,1052.352,69.378,4-cyl,Manual,Straight,Slow
+Hornet 4 Drive,21.4,6,258,110,3.08,3.215,19.44,1,0,3,1,1458.324,82.06,6-cyl,Automatic,Straight,Slow
+Hornet Sportabout,18.7,8,360,175,3.15,3.44,17.02,0,0,3,2,1560.384,130.55,8-cyl,Automatic,V-shaped,Medium
+Valiant,18.1,6,225,105,2.76,3.46,20.22,1,0,3,1,1569.4560000000001,78.33,6-cyl,Automatic,Straight,Slow
+Duster 360,14.3,8,360,245,3.21,3.57,15.84,0,0,3,4,1619.352,182.77,8-cyl,Automatic,V-shaped,Fast
+Merc 240D,24.4,4,146.7,62,3.69,3.19,20,1,0,4,2,1446.9840000000002,46.252,4-cyl,Automatic,Straight,Slow
+Merc 230,22.8,4,140.8,95,3.92,3.15,22.9,1,0,4,2,1428.84,70.87,4-cyl,Automatic,Straight,NA
+Merc 280,19.2,6,167.6,123,3.92,3.44,18.3,1,0,4,4,1560.384,91.758,6-cyl,Automatic,Straight,Slow
+Merc 280C,17.8,6,167.6,123,3.92,3.44,18.9,1,0,4,4,1560.384,91.758,6-cyl,Automatic,Straight,Slow
+Merc 450SE,16.4,8,275.8,180,3.07,4.07,17.4,0,0,3,3,1846.1520000000003,134.28,8-cyl,Automatic,V-shaped,Medium
+Merc 450SL,17.3,8,275.8,180,3.07,3.73,17.6,0,0,3,3,1691.928,134.28,8-cyl,Automatic,V-shaped,Medium
+Merc 450SLC,15.2,8,275.8,180,3.07,3.78,18,0,0,3,3,1714.608,134.28,8-cyl,Automatic,V-shaped,Medium
+Cadillac Fleetwood,10.4,8,472,205,2.93,5.25,17.98,0,0,3,4,2381.4,152.93,8-cyl,Automatic,V-shaped,Medium
+Lincoln Continental,10.4,8,460,215,3,5.424,17.82,0,0,3,4,2460.3264000000004,160.39,8-cyl,Automatic,V-shaped,Medium
+Chrysler Imperial,14.7,8,440,230,3.23,5.345,17.42,0,0,3,4,2424.492,171.58,8-cyl,Automatic,V-shaped,Medium
+Fiat 128,32.4,4,78.7,66,4.08,2.2,19.47,1,1,4,1,997.9200000000002,49.236,4-cyl,Manual,Straight,Slow
+Honda Civic,30.4,4,75.7,52,4.93,1.615,18.52,1,1,4,2,732.5640000000001,38.792,4-cyl,Manual,Straight,Slow
+Toyota Corolla,33.9,4,71.1,65,4.22,1.835,19.9,1,1,4,1,832.356,48.49,4-cyl,Manual,Straight,Slow
+Toyota Corona,21.5,4,120.1,97,3.7,2.465,20.01,1,0,3,1,1118.124,72.362,4-cyl,Automatic,Straight,Slow
+Dodge Challenger,15.5,8,318,150,2.76,3.52,16.87,0,0,3,2,1596.672,111.9,8-cyl,Automatic,V-shaped,Medium
+AMC Javelin,15.2,8,304,150,3.15,3.435,17.3,0,0,3,2,1558.1160000000002,111.9,8-cyl,Automatic,V-shaped,Medium
+Camaro Z28,13.3,8,350,245,3.73,3.84,15.41,0,0,3,4,1741.824,182.77,8-cyl,Automatic,V-shaped,Fast
+Pontiac Firebird,19.2,8,400,175,3.08,3.845,17.05,0,0,3,2,1744.092,130.55,8-cyl,Automatic,V-shaped,Medium
+Fiat X1-9,27.3,4,79,66,4.08,1.935,18.9,1,1,4,1,877.7160000000001,49.236,4-cyl,Manual,Straight,Slow
+Porsche 914-2,26,4,120.3,91,4.43,2.14,16.7,0,1,5,2,970.7040000000001,67.886,4-cyl,Manual,V-shaped,Medium
+Lotus Europa,30.4,4,95.1,113,3.77,1.513,16.9,1,1,5,2,686.2968,84.298,4-cyl,Manual,Straight,Medium
+Ford Pantera L,15.8,8,351,264,4.22,3.17,14.5,0,1,5,4,1437.912,196.944,8-cyl,Manual,V-shaped,Fast
+Ferrari Dino,19.7,6,145,175,3.62,2.77,15.5,0,1,5,6,1256.472,130.55,6-cyl,Manual,V-shaped,Fast
+Maserati Bora,15,8,301,335,3.54,3.57,14.6,0,1,5,8,1619.352,249.91,8-cyl,Manual,V-shaped,Fast
+Volvo 142E,21.4,4,121,109,4.11,2.78,18.6,1,1,4,2,1261.008,81.314,4-cyl,Manual,Straight,Slow

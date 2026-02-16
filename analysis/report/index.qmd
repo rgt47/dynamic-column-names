@@ -1,0 +1,542 @@
+---
+title: "Dynamic Column Names in R: Seven Approaches Compared"
+author: "Zenn"
+date: "2026-02-16"
+categories: [r, tidyverse, dplyr, data.table, programming]
+description: |
+  A comprehensive guide to adding columns with programmatically-generated
+  names in R dataframes. Covers base R, tidyverse (classic and modern),
+  data.table, collapse, rlang::inject(), and do.call patterns.
+image: "thumbnail.png"
+---
+
+![](thumbnail.png){.img-fluid width=40% fig-align="center"}
+
+## Introduction
+
+I was reviewing some production R code recently when I encountered this
+pattern:
+
+```r
+data |>
+  mutate(
+    !!paste0(measure, "_bl") := baseline_value,
+    !!paste0(measure, "_cng") := current - baseline_value
+  )
+```
+
+The `!!` and `:=` operators looked unfamiliar. After some investigation, I
+discovered these are part of R's tidy evaluation system---a powerful but
+often misunderstood feature for programmatic data manipulation.
+
+This exploration led me to catalog seven different approaches to creating
+columns with dynamic names in R:
+
+1. Base R using `[[` assignment
+2. Base R using `do.call()` and `setNames()`
+3. The "classic" tidyverse approach with `!!` and `:=`
+4. The modern tidyverse glue-style syntax
+5. The rlang expression splicing pattern
+
+6. The data.table approach
+7. The collapse package approach
+
+## The Problem
+
+Consider a function that calculates change scores for any cognitive measure.
+Given a dataframe with columns `rid` (subject ID), `vis` (visit), and a
+measure like `mmse`, we want to create two new columns:
+
+- `mmse_bl`: the baseline value for each subject
+- `mmse_cng`: the change from baseline at each visit
+
+The column names must be constructed dynamically because the function should
+work for any measure (`mmse`, `adas13`, `cdr`, etc.).
+
+Here is our sample data:
+
+```{r}
+library(dplyr)
+
+df <- tibble(
+  rid = rep(c("001", "002"), each = 3),
+  vis = rep(c("bl", "m06", "m12"), 2),
+  mmse = c(28, 27, 25, 30, 29, 28)
+)
+
+df
+```
+
+---
+
+## Approach 1: Base R with `[[` Assignment
+
+The most straightforward approach uses base R's `[[` assignment operator:
+
+```{r}
+calculate_change_base <- function(data, measure) {
+  bl_col <- paste0(measure, "_bl")
+  cng_col <- paste0(measure, "_cng")
+
+  result <- data
+
+  for (id in unique(data$rid)) {
+    idx <- data$rid == id
+    baseline <- data[[measure]][idx & data$vis == "bl"][1]
+    result[[bl_col]][idx] <- baseline
+    result[[cng_col]][idx] <- data[[measure]][idx] - baseline
+  }
+
+  result
+}
+
+calculate_change_base(df, "mmse")
+```
+
+### Discussion
+
+**How it works:** The `[[` operator accepts character strings for column
+names, unlike `$` which requires literal names. Writing `df[["mmse"]]` is
+equivalent to `df$mmse`, but the former allows `df[[variable]]` where
+`variable` contains the column name.
+
+**Advantages:**
+
+- No dependencies beyond base R
+- Syntax is familiar to programmers from other languages
+- Explicit and easy to debug
+
+**Disadvantages:**
+
+- Verbose, especially with grouped operations
+- Requires explicit loops for by-group calculations
+- Mutable state pattern (`result` is modified in place)
+- Does not integrate with dplyr pipelines
+- Performance degrades with many groups
+
+**When to use:** Small scripts with no package dependencies, or when
+interfacing with code from other languages where this pattern is standard.
+
+---
+
+## Approach 2: Base R with `do.call()` and `setNames()`
+
+A more functional base R approach avoids explicit loops:
+
+```{r}
+calculate_change_docall <- function(data, measure) {
+  bl_col <- paste0(measure, "_bl")
+  cng_col <- paste0(measure, "_cng")
+
+  baselines <- tapply(
+    data[[measure]][data$vis == "bl"],
+    data$rid[data$vis == "bl"],
+    FUN = `[`, 1
+  )
+
+  bl_values <- baselines[data$rid]
+  cng_values <- data[[measure]] - bl_values
+
+  new_cols <- setNames(
+    list(as.numeric(bl_values), as.numeric(cng_values)),
+    c(bl_col, cng_col)
+  )
+
+  do.call(cbind, c(list(data), new_cols))
+}
+
+calculate_change_docall(df, "mmse")
+```
+
+### Discussion
+
+**How it works:** `setNames()` creates a named list where the names come from
+a character vector. `do.call(cbind, ...)` then binds these columns to the
+original dataframe. The `tapply()` function computes grouped summaries
+without explicit loops.
+
+**Advantages:**
+
+- No external dependencies
+- Functional style (no mutable state)
+- Vectorized operations for better performance
+
+**Disadvantages:**
+
+- Dense, less readable syntax
+- `tapply()` returns an array requiring careful indexing
+- Type coercion issues (note the `as.numeric()` calls)
+- Returns a `data.frame`, not a `tibble`
+
+**When to use:** Package development where minimizing dependencies is
+critical, or performance-sensitive code where the overhead of dplyr is
+unacceptable.
+
+---
+
+## Approach 3: Classic Tidyverse with `!!` and `:=`
+
+The tidyverse introduced tidy evaluation to handle dynamic column names. Two
+operators are central:
+
+- **`:=`** (the "walrus" operator): Allows the left-hand side of an
+  assignment to be evaluated
+- **`!!`** (bang-bang): Unquotes an expression, forcing immediate evaluation
+
+```{r}
+calculate_change_classic <- function(data, measure) {
+  bl_col <- paste0(measure, "_bl")
+  cng_col <- paste0(measure, "_cng")
+
+  data |>
+    group_by(rid) |>
+    mutate(
+      !!bl_col := .data[[measure]][vis == "bl"][1],
+      !!cng_col := .data[[measure]] - .data[[bl_col]]
+    ) |>
+    ungroup()
+}
+
+calculate_change_classic(df, "mmse")
+```
+
+### Discussion
+
+**How it works:** Standard `mutate()` syntax like `mutate(new_col = value)`
+treats `new_col` as a literal name. The `=` operator does not evaluate its
+left-hand side. The `:=` operator changes this behavior. When you write
+`mutate(!!bl_col := value)`, the `!!` forces `bl_col` to be evaluated
+(yielding `"mmse_bl"`), and `:=` uses that string as the column name.
+
+The `.data` pronoun explicitly references columns in the dataframe, avoiding
+ambiguity between dataframe columns and local variables.
+
+**Advantages:**
+
+- Integrates seamlessly with dplyr pipelines
+- Grouped operations are trivial
+- Declarative, readable intent (once you learn the syntax)
+
+**Disadvantages:**
+
+- Unfamiliar syntax for newcomers (`!!` and `:=` are not standard R)
+- Requires understanding tidy evaluation concepts
+- The `rlang` package must be available (loaded with dplyr)
+
+**When to use:** Legacy tidyverse code (pre-dplyr 1.0), or when you need the
+full power of quasiquotation for complex metaprogramming.
+
+---
+
+![](media/images/ambiance1.jpg){.img-fluid width=100%}
+
+## Approach 4: Modern Tidyverse with Glue Syntax
+
+Starting with dplyr 1.0 (June 2020), a cleaner syntax emerged using
+glue-style interpolation:
+
+```{r}
+calculate_change_modern <- function(data, measure) {
+  data |>
+    group_by(rid) |>
+    mutate(
+      "{measure}_bl" := .data[[measure]][vis == "bl"][1],
+      "{measure}_cng" := .data[[measure]] - .data[[paste0(measure, "_bl")]]
+    ) |>
+    ungroup()
+}
+
+calculate_change_modern(df, "mmse")
+```
+
+### Discussion
+
+**How it works:** The string `"{measure}_bl"` is interpolated like
+`glue::glue()`, substituting the value of `measure` directly. This occurs
+at the level of the column name, with `:=` still required to enable
+left-hand side evaluation.
+
+**Advantages:**
+
+- Most readable of all tidyverse approaches
+- Reduces cognitive load (no need to remember `!!` semantics)
+- Consistent with glue syntax used elsewhere in the tidyverse
+
+**Disadvantages:**
+
+- Requires dplyr >= 1.0
+- Still requires `:=` (cannot use `=`)
+- Less flexible than `!!` for complex quasiquotation
+
+**When to use:** New tidyverse code. This is the current recommended
+approach for dynamic column names in dplyr.
+
+---
+
+## Approach 5: rlang Expression Splicing
+
+For more explicit metaprogramming, rlang provides `expr()` for building
+expressions and `!!!` for splicing them into function calls:
+
+```{r}
+library(rlang)
+
+calculate_change_rlang <- function(data, measure) {
+  bl_col <- paste0(measure, "_bl")
+  cng_col <- paste0(measure, "_cng")
+
+  exprs <- list(
+    expr(.data[[!!measure]][vis == "bl"][1]),
+    expr(.data[[!!measure]] - .data[[!!bl_col]])
+  )
+  names(exprs) <- c(bl_col, cng_col)
+
+  data |>
+    group_by(rid) |>
+    mutate(!!!exprs) |>
+    ungroup()
+}
+
+calculate_change_rlang(df, "mmse")
+```
+
+### Discussion
+
+**How it works:** `expr()` captures an expression without evaluating it,
+while `!!` inside `expr()` forces evaluation of specific parts. The result
+is a list of named expressions. The `!!!` (splice) operator unpacks this
+list into `mutate()`, equivalent to writing each expression as a separate
+argument.
+
+**Advantages:**
+
+- Build expressions programmatically before evaluation
+- Useful when the number of columns is dynamic
+- Expressions can be inspected, modified, or logged before use
+- Clear separation between expression construction and evaluation
+
+**Disadvantages:**
+
+- More verbose for simple cases
+- Requires understanding quasiquotation deeply
+- Overkill for straightforward dynamic naming
+
+**When to use:** Complex metaprogramming where you need to build expressions
+dynamically, such as generating an unknown number of columns based on input
+data, or when you want to inspect/log expressions before evaluation.
+
+---
+
+## Approach 6: data.table
+
+The data.table package has its own `:=` operator that predates tidyverse
+adoption:
+
+```{r}
+library(data.table)
+
+calculate_change_dt <- function(data, measure) {
+  bl_col <- paste0(measure, "_bl")
+  cng_col <- paste0(measure, "_cng")
+
+  dt <- as.data.table(data)
+
+  dt[, (bl_col) := .SD[[measure]][vis == "bl"][1], by = rid]
+  dt[, (cng_col) := .SD[[measure]] - .SD[[bl_col]], by = rid]
+
+  dt[]
+}
+
+calculate_change_dt(df, "mmse")
+```
+
+### Discussion
+
+**How it works:** In data.table, wrapping a variable in parentheses on the
+left-hand side of `:=` forces evaluation: `(bl_col)` evaluates to `"mmse_bl"`.
+Without parentheses, `bl_col := value` would create a column literally named
+"bl_col". The `.SD` pronoun (Subset of Data) references the current group's
+data.
+
+**Advantages:**
+
+- Extremely fast, especially for large datasets
+- Memory efficient (modifies in place by reference)
+- Mature, battle-tested codebase
+- The `by` argument handles grouping concisely
+
+**Disadvantages:**
+
+- Different mental model from base R and tidyverse
+- Modify-by-reference semantics can cause subtle bugs
+- Less readable for those unfamiliar with data.table idioms
+- Parentheses syntax `(col)` is easy to forget
+
+**When to use:** Performance-critical applications, very large datasets
+(millions of rows), or codebases already using data.table.
+
+---
+
+![](media/images/ambiance2.jpg){.img-fluid width=100%}
+
+## Approach 7: collapse
+
+The collapse package offers high-performance data manipulation with its own
+idioms:
+
+```{r}
+library(collapse)
+
+calculate_change_collapse <- function(data, measure) {
+  bl_col <- paste0(measure, "_bl")
+  cng_col <- paste0(measure, "_cng")
+
+  bl_data <- fsubset(data, vis == "bl")
+  bl_values <- get_vars(bl_data, c("rid", measure))
+  names(bl_values)[2] <- bl_col
+
+  result <- join(data, bl_values, on = "rid", how = "left")
+  result[[cng_col]] <- result[[measure]] - result[[bl_col]]
+
+  result
+}
+
+calculate_change_collapse(df, "mmse")
+```
+
+### Discussion
+
+**How it works:** collapse provides fast versions of common operations
+(`fsubset`, `get_vars`, `join`, etc.). Unlike dplyr, collapse does not use
+tidy evaluation, so dynamic column access requires base R syntax like
+`get_vars()` with character vectors and direct `[[` assignment. The approach
+above uses a join strategy rather than grouped mutation.
+
+**Advantages:**
+
+- Extremely fast (often faster than data.table for certain operations)
+- Low memory footprint
+- Works with both data.frames and data.tables
+- Good for time series and panel data
+
+**Disadvantages:**
+
+- Smaller user community than tidyverse or data.table
+- Inconsistent tidy evaluation support across functions
+- Often requires mixing collapse functions with base R syntax
+- Less comprehensive documentation
+
+**When to use:** Performance-critical code, especially time series or panel
+data analysis. Also useful when you need speed but want to avoid data.table's
+reference semantics.
+
+---
+
+## Comparison Summary
+
+| Approach | Dependencies | Readability | Performance | Best For |
+|----------|--------------|-------------|-------------|----------|
+| Base R `[[` | None | Moderate | Low | No-dependency scripts |
+| Base R `do.call` | None | Low | Moderate | Package development |
+| Classic `!!` `:=` | dplyr | Low | Moderate | Legacy tidyverse code |
+| Modern glue | dplyr >= 1.0 | High | Moderate | New tidyverse code |
+| rlang `!!!` splice | rlang | Moderate | Moderate | Complex metaprogramming |
+| data.table | data.table | Moderate | High | Large datasets |
+| collapse | collapse | Moderate | Very High | Performance-critical work |
+
+## Practical Example: Multiple Measures
+
+The real power emerges when processing multiple measures:
+
+```{r}
+df_multi <- tibble(
+  rid = rep(c("001", "002"), each = 3),
+  vis = rep(c("bl", "m06", "m12"), 2),
+  mmse = c(28, 27, 25, 30, 29, 28),
+  adas = c(12, 14, 18, 10, 12, 15),
+  cdr = c(0.5, 0.5, 1.0, 0.5, 0.5, 0.5)
+)
+
+calculate_all_changes <- function(data, measures) {
+  result <- data |> group_by(rid)
+
+  for (measure in measures) {
+    result <- result |>
+      mutate(
+        "{measure}_bl" := .data[[measure]][vis == "bl"][1],
+        "{measure}_cng" := .data[[measure]] - .data[[paste0(measure, "_bl")]]
+      )
+  }
+
+  result |> ungroup()
+}
+
+calculate_all_changes(df_multi, c("mmse", "adas", "cdr"))
+```
+
+## Common Pitfalls
+
+### 1. Forgetting := on the LHS (tidyverse)
+
+```r
+# Wrong: creates column literally named "{measure}_bl"
+mutate("{measure}_bl" = value)
+
+# Correct: evaluates the string
+mutate("{measure}_bl" := value)
+```
+
+### 2. Forgetting parentheses (data.table)
+
+```r
+# Wrong: creates column named "bl_col"
+dt[, bl_col := value]
+
+# Correct: evaluates bl_col to get "mmse_bl"
+dt[, (bl_col) := value]
+```
+
+### 3. Confusing column references
+
+```r
+# Ambiguous: is 'measure' a column or variable?
+mutate("{measure}_bl" := measure[vis == "bl"][1])
+
+# Clear: .data[[measure]] references the column
+mutate("{measure}_bl" := .data[[measure]][vis == "bl"][1])
+```
+
+### 4. Reference semantics in data.table
+
+```r
+dt <- as.data.table(df)
+dt2 <- dt  # This is NOT a copy!
+dt2[, new_col := 1]  # Modifies both dt and dt2
+
+# Safe copy:
+dt2 <- copy(dt)
+```
+
+## Lessons Learnt
+
+1. **`:=` enables dynamic LHS**: In both tidyverse and data.table, this
+   operator allows the left side of an assignment to be evaluated
+2. **`!!` is the unquote operator**: Forces immediate evaluation of an
+   expression in tidy eval contexts
+3. **Glue syntax is cleaner**: `"{var}_suffix"` is more readable than
+   `!!paste0(var, "_suffix")`
+4. **Parentheses matter in data.table**: `(col)` evaluates, `col` is literal
+5. **`.data` removes ambiguity**: Always use `.data[[col]]` for column
+   references in functions
+6. **Choose based on context**: Readability (glue) vs performance (data.table)
+   vs no dependencies (base R)
+
+## Reproducibility
+
+```{r}
+sessionInfo()
+```
+
+---
+
+*Rendered on 2026-02-16.*
