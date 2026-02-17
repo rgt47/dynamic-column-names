@@ -1,22 +1,22 @@
 # syntax=docker/dockerfile:1.4
 #======================================================================
-# ZZCOLLAB Ubuntu X11 Minimal Profile
+# ZZCOLLAB Ubuntu X11 Analysis Profile
 #======================================================================
-# Profile: ubuntu_x11_minimal (~1.0GB)
-# Purpose: Minimal R with X11 support for graphics viewing
-# Base: rocker/r-ver (R + minimal dependencies)
-# Packages: renv (binary from r2u)
+# Profile: ubuntu_x11_analysis (~2.5GB)
+# Purpose: Data analysis with tidyverse and X11 support
+# Base: rocker/tidyverse (R + tidyverse packages)
+# Packages: renv, tidyverse (dplyr, purrr, ggplot2, etc.)
 #
 # Build: DOCKER_BUILDKIT=1 docker build \
-#          -f Dockerfile.ubuntu_x11_minimal \
-#          -t myteam/project:x11-minimal .
+#          -f Dockerfile.ubuntu_x11_analysis \
+#          -t myteam/project:x11-analysis .
 # Run: Requires XQuartz (macOS) or X11 (Linux)
 #======================================================================
 
 # ARGs before FROM are available only for FROM instruction
 ARG R_VERSION=4.5.1
 
-FROM rocker/r-ver:4.5.1
+FROM rocker/tidyverse:4.5.1
 
 # Re-declare ARGs after FROM for use in build stages
 ARG USERNAME=analyst
