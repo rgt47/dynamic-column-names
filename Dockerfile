@@ -14,9 +14,9 @@
 #======================================================================
 
 # ARGs before FROM are available only for FROM instruction
-ARG R_VERSION=4.5.1
+ARG R_VERSION=4.5.2
 
-FROM rocker/tidyverse:4.5.1
+FROM rocker/tidyverse:4.5.2
 
 # Re-declare ARGs after FROM for use in build stages
 ARG USERNAME=analyst
@@ -35,7 +35,7 @@ ENV LANG=en_US.UTF-8 \
     ZZCOLLAB_CONTAINER=true
 
 # Install runtime and build dependencies
-# Version pins removed — base image (rocker/r-ver:4.5.1) pins the OS
+# Version pins removed — base image (rocker/r-ver:4.5.2) pins the OS
 # snapshot; unpinned packages track the latest patch for that release.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
@@ -74,7 +74,7 @@ RUN echo "options(repos = c(CRAN = 'https://packagemanager.posit.co/cran/__linux
         >> /usr/local/lib/R/etc/Rprofile.site
 
 # Install renv from CRAN
-RUN --mount=type=cache,target=/tmp/R-cache/4.5.1 \
+RUN --mount=type=cache,target=/tmp/R-cache/4.5.2 \
     R -e "install.packages('renv')"
 
 # Copy project files and restore packages (before USER for root access)
