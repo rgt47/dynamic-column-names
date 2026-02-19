@@ -161,31 +161,31 @@ docker-run: check-renv
 	case "$$PROFILE" in \
 		*minimal) \
 			echo "🐳 Starting minimal profile..."; \
-			docker run --platform linux/amd64 --rm -it -v $$(pwd):/home/analyst/project -v $$(pwd)/.cache/R/renv:/home/analyst/.cache/R/renv $(PACKAGE_NAME); \
+			docker run --platform linux/amd64 --rm -it -v $$(pwd):/home/analyst/project -v $$HOME/.cache/R/renv:/home/analyst/.cache/R/renv $(PACKAGE_NAME); \
 			;; \
 		*x11*) \
 			echo "🐳 Starting X11 profile (GUI support)..."; \
 			echo "⚠️  Requires XQuartz running with 'Allow connections from network clients'"; \
 			echo ""; \
 			xhost + 127.0.0.1 > /dev/null 2>&1 || echo "⚠️  xhost command failed - XQuartz may not be running"; \
-			docker run --platform linux/amd64 --rm -it -v $$(pwd):/home/analyst/project -v $$(pwd)/.cache/R/renv:/home/analyst/.cache/R/renv -e DISPLAY=host.docker.internal:0 $(PACKAGE_NAME); \
+			docker run --platform linux/amd64 --rm -it -v $$(pwd):/home/analyst/project -v $$HOME/.cache/R/renv:/home/analyst/.cache/R/renv -e DISPLAY=host.docker.internal:0 $(PACKAGE_NAME); \
 			;; \
 		*shiny*) \
 			echo "🐳 Starting Shiny Server..."; \
 			echo "📊 Shiny: http://localhost:3838"; \
 			echo ""; \
-			docker run --platform linux/amd64 --rm -p 3838:3838 -v $$(pwd):/home/analyst/project -v $$(pwd)/.cache/R/renv:/home/analyst/.cache/R/renv $(PACKAGE_NAME); \
+			docker run --platform linux/amd64 --rm -p 3838:3838 -v $$(pwd):/home/analyst/project -v $$HOME/.cache/R/renv:/home/analyst/.cache/R/renv $(PACKAGE_NAME); \
 			;; \
 		*analysis|*publishing) \
 			echo "🐳 Starting $$PROFILE profile (RStudio Server)..."; \
 			echo "📊 RStudio: http://localhost:8787"; \
 			echo "👤 Username: analyst, Password: analyst"; \
 			echo ""; \
-			docker run --platform linux/amd64 --rm -p 8787:8787 -v $$(pwd):/home/analyst/project -v $$(pwd)/.cache/R/renv:/home/analyst/.cache/R/renv -e USER=analyst -e PASSWORD=analyst $(PACKAGE_NAME) /init; \
+			docker run --platform linux/amd64 --rm -p 8787:8787 -v $$(pwd):/home/analyst/project -v $$HOME/.cache/R/renv:/home/analyst/.cache/R/renv -e USER=analyst -e PASSWORD=analyst $(PACKAGE_NAME) /init; \
 			;; \
 		alpine_*) \
 			echo "🐳 Starting Alpine profile..."; \
-			docker run --rm -it -v $$(pwd):/home/analyst/project -v $$(pwd)/.cache/R/renv:/home/analyst/.cache/R/renv $(PACKAGE_NAME); \
+			docker run --rm -it -v $$(pwd):/home/analyst/project -v $$HOME/.cache/R/renv:/home/analyst/.cache/R/renv $(PACKAGE_NAME); \
 			;; \
 		*) \
 			echo "❌ Unknown profile: $$PROFILE"; \
