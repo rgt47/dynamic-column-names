@@ -1,0 +1,161 @@
+{
+  "version": "1.0",
+  "created_at": "2025-12-08T17:04:50Z",
+  "package_name": "templatepost",
+  "modules_loaded": [
+    "core",
+    "templates",
+    "structure",
+    "rpackage",
+    "docker",
+    "analysis",
+    "cicd",
+    "devtools"
+  ],
+  "command_line_options": {
+    "build_docker": false,
+    "base_image": "rocker/r-ver"
+  },
+  "directories": [
+    "R",
+    "man",
+    "tests/testthat",
+    "vignettes",
+    "modules",
+    "analysis",
+    "analysis/data",
+    "analysis/data/raw_data",
+    "analysis/data/derived_data",
+    "analysis/paper",
+    "analysis/figures",
+    "analysis/tables",
+    "analysis/templates",
+    "analysis/scripts",
+    "docs",
+    ".github/workflows",
+    "tests",
+    "tests/testthat",
+    "tests/integration",
+    "renv",
+    "analysis",
+    "analysis/paper",
+    "analysis/figures",
+    "analysis/tables",
+    "analysis/templates",
+    "analysis/scripts",
+    ".github/workflows"
+  ],
+  "files": [
+    "LICENSE",
+    "NAMESPACE",
+    "tests/testthat.R",
+    "tests/testthat/test-utils.R",
+    ".Rprofile",
+    ".zzcollab/uninstall.sh"
+  ],
+  "template_files": [
+    {
+      "template": "data_README.md",
+      "destination": "analysis/data/README.md"
+    },
+    {
+      "template": "DATA_WORKFLOW_GUIDE.md",
+      "destination": "docs/DATA_WORKFLOW_GUIDE.md"
+    },
+    {
+      "template": "DESCRIPTION.ubuntu_standard_publishing",
+      "destination": "DESCRIPTION"
+    },
+    {
+      "template": ".Rbuildignore",
+      "destination": ".Rbuildignore"
+    },
+    {
+      "template": "R/utils.R",
+      "destination": "R/utils.R"
+    },
+    {
+      "template": "tests/integration/test-data-pipeline.R",
+      "destination": "tests/integration/test-data-pipeline.R"
+    },
+    {
+      "template": "tests/integration/test-analysis-scripts.R",
+      "destination": "tests/integration/test-analysis-scripts.R"
+    },
+    {
+      "template": "tests/integration/test-report-rendering.R",
+      "destination": "tests/integration/test-report-rendering.R"
+    },
+    {
+      "template": "README.md",
+      "destination": "README.md"
+    },
+    {
+      "template": "renv.lock",
+      "destination": "renv.lock"
+    },
+    {
+      "template": "renv/activate.R",
+      "destination": "renv/activate.R"
+    },
+    {
+      "template": "renv/.gitignore",
+      "destination": "renv/.gitignore"
+    },
+    {
+      "template": "modules/core.sh",
+      "destination": "modules/core.sh"
+    },
+    {
+      "template": "modules/utils.sh",
+      "destination": "modules/utils.sh"
+    },
+    {
+      "template": "modules/constants.sh",
+      "destination": "modules/constants.sh"
+    },
+    {
+      "template": "modules/navigation_scripts.sh",
+      "destination": "modules/navigation_scripts.sh"
+    },
+    {
+      "template": "modules/setup_symlinks.sh",
+      "destination": "modules/setup_symlinks.sh"
+    },
+    {
+      "template": "modules/validation.sh",
+      "destination": "modules/validation.sh"
+    },
+    {
+      "template": ".gitignore",
+      "destination": ".gitignore"
+    },
+    {
+      "template": "Dockerfile.ubuntu_standard_publishing",
+      "destination": "Dockerfile"
+    },
+    {
+      "template": "ZZCOLLAB_USER_GUIDE.md",
+      "destination": "docs/ZZCOLLAB_USER_GUIDE.md"
+    },
+    {
+      "template": "workflows/r-package.yml",
+      "destination": ".github/workflows/r-package.yml"
+    },
+    {
+      "template": "unified/.github/workflows/render-paper.yml",
+      "destination": ".github/workflows/render-paper.yml"
+    },
+    {
+      "template": "Makefile",
+      "destination": "Makefile"
+    }
+  ],
+  "symlinks": [
+    {
+      "link": "ZZCOLLAB_USER_GUIDE.md",
+      "target": ""
+    }
+  ],
+  "docker_image": null
+}

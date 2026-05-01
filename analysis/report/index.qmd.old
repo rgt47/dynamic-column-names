@@ -1,0 +1,578 @@
+---
+title: "Your Engaging Title Here: A Learning Journey"
+subtitle: "Notes to myself on [discovering/implementing/understanding] [topic] 🤔"
+author: "Ronald G. Thomas"
+date: "2025-01-01"
+categories: [R Programming, Data Science, Statistical Computing]
+description: "I didn't really know much about [topic] until I tried to [implement/understand] it myself. Here's what I learned along the way."
+image: "media/images/penguin-hero.jpg"
+document-type: "blog"
+draft: false
+execute:
+  echo: true
+  warning: false
+  message: false
+format:
+  html:
+    code-fold: false
+    code-tools: false
+  pdf:
+    fontsize: 11pt
+    toc: false
+    number-sections: false
+    documentclass: article
+    keep-tex: true
+    pdf-engine-opts:
+      - "-interaction=nonstopmode"
+    geometry:
+      - margin=0.75in
+---
+
+<!-- TEMPLATE INSTRUCTION: HERO IMAGE
+This is your first visual impression. Use an engaging, high-quality image that sets the tone.
+Options: penguins-library-7755210_1280.jpg, penguin-gentoo-penguin-7073394_1280.jpg,
+penguins-cinema-4d-4030946_1280.jpg, penguins-26046_1280.jpg, penguins-7553626_1280.jpg -->
+
+![Engaging hero image that introduces your topic visually](media/images/penguin-hero.jpg){.img-fluid}
+
+*Photo caption with attribution if needed. This image sets the visual tone for your entire post.*
+
+<!-- TEMPLATE INSTRUCTION: SERIES NAVIGATION (Optional)
+If this post is part of a series, include navigation like this:
+::: {.callout-note appearance="simple"}
+## 📚 [Series Name] Series
+
+This is **Part X** of a Y-part series:
+
+1. [Part 1: Title](../part1/)
+2. **Part 2: Title** (This post)
+3. [Part 3: Title](../part3/)
+:::
+-->
+
+# Introduction
+
+<!-- TEMPLATE INSTRUCTION: INTRODUCTION - Ken Koon Wong Style
+Purpose: Hook with personal learning narrative
+Ken's approach:
+- "I didn't really know... until I learned"
+- Establishes author as learner, not expert
+- Creates immediate relatability
+- Conversational, humble tone
+Keep it SHORT - 2-3 paragraphs max
+-->
+
+I didn't really know much about [topic] until I [encountered situation/tried to implement it/needed it for project]. Like many data scientists, I thought [initial misconception or assumption]. Turns out, [what you actually discovered] 🤔
+
+[Brief context: Why did you need this? What problem were you trying to solve? Keep it personal and specific.]
+
+Here's what I set out to understand:
+
+## Motivations
+
+<!-- Ken always has a "Motivations" section explaining WHY this matters -->
+
+**Why explore [topic]?**
+- [Personal reason 1: specific problem you faced]
+- [Practical need 2: gap in your workflow]
+- [Learning goal 3: skill you wanted to develop]
+- [Curiosity 4: interesting question you had]
+
+## Objectives
+
+<!-- Clear, numbered objectives - Ken's style -->
+
+**What I wanted to accomplish:**
+1. [Specific, measurable objective 1]
+2. [Specific, measurable objective 2]
+3. [Specific, measurable objective 3]
+4. [Stretch goal or advanced concept]
+
+**Disclaimer:** I'm documenting my learning process here. If you spot errors or have better approaches, please let me know! 💙
+
+# Prerequisites and Setup
+
+<!-- TEMPLATE INSTRUCTION: PREREQUISITES - Ken's Style
+Keep it minimal and conversational
+Show the code first, explain briefly
+Don't overwhelm with requirements
+-->
+
+Here's what you'll need to follow along:
+
+```{r}
+#| eval: false
+# Install packages if needed
+install.packages(c("tidyverse", "broom", "knitr", "patchwork"))
+```
+
+```{r}
+# Load libraries
+library(tidyverse)
+library(broom)
+library(knitr)
+library(patchwork)
+
+# Set plotting theme
+theme_set(theme_minimal(base_size = 12))
+
+# Custom color palette
+custom_colors <- c("#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4")
+```
+
+**Background:** Basic R and ggplot2 familiarity helpful but not required. I'll explain concepts as we go!
+
+# What is [Topic/Concept]?
+
+<!-- TEMPLATE INSTRUCTION: CONCEPTUAL FOUNDATION - Ken's Style
+Ken often includes a "What is X?" section explaining concepts in plain language
+- Start with simple definition
+- Use analogies or examples
+- Keep it brief (2-4 sentences)
+- THEN show the code
+-->
+
+Before diving into code, let's clarify what [topic] actually means. [Simple, plain-language explanation of the concept. Use an analogy if helpful.] In practice, this means [concrete example or application].
+
+# Getting Started: Initial Exploration
+
+<!-- TEMPLATE INSTRUCTION: FIRST SECTION
+CODE FIRST, then brief explanation
+Ken's ratio: ~40% code, 60% explanation
+Keep explanatory text SHORT (2-4 sentences between code blocks)
+-->
+
+```{r}
+# Load data
+data(mtcars)
+
+# Display structure
+glimpse(mtcars)
+```
+
+Okay, so we have 32 cars with 11 variables. Let's see what we're working with here 🤔
+
+```{r}
+# Key summary stats
+summary_table <- mtcars %>%
+  summarise(
+    n = n(),
+    mpg_mean = round(mean(mpg), 1),
+    mpg_sd = round(sd(mpg), 1),
+    hp_mean = round(mean(hp), 0),
+    hp_sd = round(sd(hp), 0)
+  )
+
+kable(summary_table,
+      col.names = c("N", "MPG Mean", "MPG SD", "HP Mean", "HP SD"))
+```
+
+Not too shabby! Average fuel efficiency is 20.1 MPG with quite a bit of variation (SD = 6.0).
+
+# Exploring the Data
+
+<!-- TEMPLATE INSTRUCTION: BUILD COMPLEXITY - Ken's Style
+- CODE → OUTPUT → Brief interpretation
+- Use casual expressions: "Wow," "Interesting," "Ouch," "Not too shabby!"
+- SHOW results, don't just explain them
+- Let the data tell the story
+-->
+
+Let's visualize these patterns:
+
+```{r}
+# Create distribution plots
+p1 <- ggplot(mtcars, aes(x = mpg)) +
+  geom_histogram(bins = 15, fill = custom_colors[1], alpha = 0.7) +
+  labs(title = "Distribution of MPG", x = "Miles Per Gallon", y = "Count") +
+  theme_minimal()
+
+p2 <- ggplot(mtcars, aes(x = factor(cyl), y = mpg, fill = factor(cyl))) +
+  geom_boxplot(alpha = 0.7) +
+  scale_fill_manual(values = custom_colors) +
+  labs(title = "MPG by Cylinder Count",
+       x = "Number of Cylinders", y = "Miles Per Gallon") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+# Combine plots
+combined_plot <- p1 + p2
+print(combined_plot)
+
+# Save the plot
+ggsave("eda-overview.png", plot = combined_plot, width = 10, height = 5, dpi = 300)
+```
+
+![Overview of fuel efficiency distributions showing variation across cylinder counts](eda-overview.png){alt='Two-panel figure: left shows histogram of MPG distribution, right shows boxplots of MPG by cylinder count (4, 6, 8 cylinders)'}
+
+Wow, that's a clear pattern! Cars with fewer cylinders are way more fuel-efficient 📊
+
+## Looking for Relationships
+
+```{r}
+# Find strongest correlations with MPG
+correlations <- cor(mtcars) %>%
+  as.data.frame() %>%
+  rownames_to_column("var1") %>%
+  pivot_longer(-var1, names_to = "var2", values_to = "correlation") %>%
+  filter(var1 == "mpg", var2 != "mpg") %>%
+  arrange(desc(abs(correlation)))
+
+# Show top 5
+correlations %>% head(5)
+```
+
+🔍 Weight has the strongest correlation with MPG (r = -0.87). Let's visualize that relationship:
+
+```{r}
+# Plot the relationship
+key_plot <- ggplot(mtcars, aes(x = wt, y = mpg, color = factor(cyl))) +
+  geom_point(size = 3, alpha = 0.7) +
+  geom_smooth(method = "lm", se = FALSE, color = "black", linetype = "dashed") +
+  scale_color_manual(values = custom_colors, name = "Cylinders") +
+  labs(title = "Weight vs Fuel Efficiency",
+       x = "Weight (1000 lbs)", y = "Miles Per Gallon") +
+  theme_minimal()
+
+print(key_plot)
+ggsave("correlation-plot.png", plot = key_plot, width = 8, height = 5, dpi = 300)
+```
+
+![Scatter plot showing negative relationship between vehicle weight and fuel efficiency](correlation-plot.png){alt='Scatter plot with weight on x-axis and MPG on y-axis, colored by cylinder count, showing negative correlation with fitted line'}
+
+Interesting! Heavier cars consistently get worse mileage. Makes sense when you think about it 🚗
+
+# Building a Model
+
+<!-- TEMPLATE INSTRUCTION: MAIN ANALYSIS - Ken's Style
+This is the heart of your post
+- CODE → OUTPUT → Brief reaction/interpretation
+- Use emoji for emphasis: ✅ ❌ 🤣 🤔 📊
+- Label results clearly: "wrong model ❌" vs "correct model ✅"
+- React to results: "Wow," "Ouch," "Not bad!"
+- Keep explanations SHORT between code blocks
+-->
+
+Alright, let's build a simple linear model to quantify this relationship:
+
+```{r}
+# Fit the model
+simple_model <- lm(mpg ~ wt, data = mtcars)
+
+# Get tidy summary
+model_summary <- tidy(simple_model, conf.int = TRUE)
+model_metrics <- glance(simple_model)
+
+# Display the results
+model_summary
+glance(simple_model)
+```
+
+📊 **Nice! The model explains 75% of the variance (R² = 0.75).** For every 1,000 lbs of weight, we lose about 5.3 MPG (95% CI: [-6.5, -4.1]) ✅
+
+Let's make some predictions to see how this works in practice:
+
+```{r}
+# Predict MPG for different weights
+new_data <- tibble(wt = c(2, 3, 4))
+predictions <- predict(simple_model, newdata = new_data, interval = "confidence")
+
+# Combine for display
+cbind(new_data, predictions)
+```
+
+📝 So a 2,000 lb car gets ~30 MPG, while a 4,000 lb car only gets ~15 MPG. That's quite a difference!
+
+## Model Visualization
+
+```{r}
+# Visualize model fit with confidence bands
+model_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point(aes(color = factor(cyl)), size = 3, alpha = 0.6) +
+  geom_smooth(method = "lm", color = "black", fill = "gray80") +
+  scale_color_manual(values = custom_colors, name = "Cylinders") +
+  labs(title = "Linear Model: MPG ~ Weight",
+       subtitle = "Gray band shows 95% confidence interval",
+       x = "Weight (1000 lbs)", y = "Miles Per Gallon") +
+  theme_minimal()
+
+print(model_plot)
+ggsave("model-plot.png", plot = model_plot, width = 8, height = 5, dpi = 300)
+```
+
+![Linear regression model showing relationship between weight and fuel efficiency with confidence bands](model-plot.png){alt='Scatter plot with fitted regression line and gray confidence band, showing negative relationship between vehicle weight and MPG'}
+
+# Checking Our Work
+
+<!-- TEMPLATE INSTRUCTION: DIAGNOSTICS/VALIDATION - Ken's Style
+- Show what to watch out for
+- Be transparent about issues
+- Use casual language
+- Emoji for visual breaks
+-->
+
+Before we trust these results, let's check if our model assumptions hold up:
+
+```{r}
+# Add diagnostic information
+mtcars_diagnostics <- mtcars %>%
+  mutate(
+    predicted = predict(simple_model),
+    residuals = residuals(simple_model),
+    std_resid = rstandard(simple_model)
+  )
+
+# Check for outliers
+outliers <- which(abs(mtcars_diagnostics$std_resid) > 2.5)
+```
+
+⚠️ **Diagnostic checks:** Found `r length(outliers)` potential outliers (>2.5 SD). Residual standard error is `r round(sigma(simple_model), 2)` MPG.
+
+Now let's visualize the residuals to check for patterns:
+
+```{r}
+# Create diagnostic plot
+diag_plot <- ggplot(mtcars_diagnostics, aes(x = predicted, y = std_resid)) +
+  geom_point(aes(color = factor(cyl)), size = 3, alpha = 0.6) +
+  geom_hline(yintercept = c(-2, 0, 2),
+             linetype = c("dashed", "solid", "dashed"),
+             color = c("red", "black", "red")) +
+  scale_color_manual(values = custom_colors, name = "Cylinders") +
+  labs(title = "Residual Diagnostics",
+       x = "Predicted MPG", y = "Standardized Residuals") +
+  theme_minimal()
+
+print(diag_plot)
+ggsave("diagnostics-plot.png", plot = diag_plot, width = 8, height = 5, dpi = 300)
+```
+
+![Diagnostic plot showing residual patterns to assess model validity](diagnostics-plot.png){alt='Residual plot with standardized residuals on y-axis and predicted values on x-axis, with reference lines at -2, 0, and +2 standard deviations'}
+
+Looks pretty good! No major patterns in the residuals, though we have a couple of potential outliers worth investigating 🔍
+
+## Things to Watch Out For
+
+<!-- TEMPLATE INSTRUCTION: GOTCHAS - Ken's Style
+- Share what you learned the hard way
+- Be conversational and personal
+- "I found that..." "Watch out for..."
+-->
+
+A few gotchas I encountered while working on this:
+
+1. **Don't extrapolate too far** - This model works for weights between 1.5-5.5 thousand lbs. Predicting outside that range? Risky!
+
+2. **Correlation ≠ Causation** - Weight correlates with MPG, but there are confounding variables (engine size, aerodynamics, etc.)
+
+3. **Check your assumptions** - Always plot residuals! A good R² doesn't guarantee your model is appropriate.
+
+4. **Small sample size** - We only have 32 cars. Take the confidence intervals seriously!
+
+# What Did We Learn?
+
+<!-- TEMPLATE INSTRUCTION: LESSONS LEARNT - Ken's Signature Section!
+This is Ken's trademark section - always included
+- Bullet points of key takeaways
+- Tools/packages mastered
+- Concepts understood
+- Skills developed
+- Be specific and actionable
+-->
+
+## Lessons Learnt
+
+Here's what I took away from this exploration:
+
+**Conceptual Understanding:**
+- Vehicle weight is a strong predictor of fuel efficiency (R² = 0.75)
+- Each 1,000 lbs reduces MPG by ~5.3 miles (95% CI: [-6.5, -4.1])
+- Cylinder count effects are partially mediated through weight
+- Simple models can be surprisingly effective with the right predictor
+
+**Technical Skills:**
+- Using `broom::tidy()` for clean model output formatting ✅
+- Calculating and interpreting confidence intervals for predictions
+- Creating diagnostic plots to validate regression assumptions
+- Combining multiple ggplot visualizations with `patchwork`
+
+**Gotchas and Pitfalls:**
+- Always check residual plots - R² alone isn't enough!
+- Extrapolation beyond data range is dangerous
+- Small sample sizes (n=32) require cautious interpretation
+- Correlation doesn't prove causation (confounding variables matter)
+
+## Limitations
+
+<!-- TEMPLATE INSTRUCTION: LIMITATIONS - Ken's Style
+Be honest and transparent
+Ken acknowledges limitations upfront
+Keep it concise - bullet points work well
+-->
+
+This analysis has several limitations to keep in mind:
+
+- **Old data**: mtcars is from 1974 - modern vehicles (hybrids, EVs) behave differently
+- **Small sample**: Only 32 observations limits statistical power
+- **Missing variables**: Doesn't account for aerodynamics, transmission type, engine tech
+- **Simple model**: Single predictor ignores important confounders
+- **Limited scope**: Only passenger cars; may not generalize to trucks/SUVs
+
+## Opportunities for Improvement
+
+<!-- TEMPLATE INSTRUCTION: OPPORTUNITIES - Another Ken Signature!
+Forward-looking section on what could be done next
+- Extensions to try
+- Better approaches
+- Future directions
+- Related analyses
+-->
+
+If I had more time, here's what I'd explore next:
+
+1. **Multiple regression** - Add cylinder count, horsepower, transmission type
+2. **Interaction effects** - Does weight impact differ by number of cylinders?
+3. **Modern data** - Replicate with 2020+ vehicle data to see how relationships changed
+4. **Non-linear models** - Try polynomial regression or splines for better fit
+5. **Machine learning comparison** - How does linear regression compare to random forest?
+6. **Causal inference** - Use techniques to establish causality, not just correlation
+
+# Wrapping Up
+
+<!-- TEMPLATE INSTRUCTION: CONCLUSION - Ken's Style
+Short, friendly, forward-looking
+Ken often invites collaboration and questions
+Acknowledges ongoing learning
+Expresses gratitude
+-->
+
+So that's my journey exploring [topic]! We saw that vehicle weight is a powerful predictor of fuel efficiency, accounting for 75% of the variance. The model is simple but effective, though it has limitations worth keeping in mind.
+
+**Main takeaways:**
+- Weight strongly predicts MPG (R² = 0.75, β = -5.3)
+- Always check model assumptions with diagnostic plots
+- Confidence intervals matter, especially with small samples
+- Simple models can be surprisingly powerful
+
+I learned a lot working through this, especially about [specific technical skill you gained]. There's definitely room for improvement—adding more predictors, trying non-linear models, and using modern data would all be interesting extensions.
+
+**If you're trying this yourself:**
+- Start with exploration before modeling
+- Plot your residuals!
+- Don't trust high R² blindly
+- Report confidence intervals alongside point estimates
+
+Thanks for following along! 💙
+
+# See Also
+
+<!-- TEMPLATE INSTRUCTION: SEE ALSO - Ken's Style
+Ken keeps this section VERY simple
+Links to related blog posts or resources
+Not an exhaustive bibliography
+Usually 3-5 key links
+-->
+
+Related posts and resources:
+
+- [Link to related post 1]
+- [Link to related post 2]
+- [Link to related resource]
+
+**Key Resources:**
+- [R for Data Science](https://r4ds.had.co.nz/) - Free book on tidyverse
+- [Introduction to Statistical Learning](https://www.statlearning.com/) - Free textbook with R code
+- [broom package docs](https://broom.tidymodels.org/) - Tidy model outputs
+- [Cross Validated](https://stats.stackexchange.com/) - Stats Q&A community
+
+---
+
+# Reproducibility
+
+<!-- TEMPLATE INSTRUCTION: REPRODUCIBILITY - Simplified
+Ken includes this but keeps it minimal
+Focus on essentials: data source, code availability, session info
+-->
+
+**Data:** mtcars (built-in R dataset, `data(mtcars)`)
+**Code:** All code shown in this post
+**Session Info:**
+```{r}
+#| echo: false
+sessionInfo()
+```
+
+---
+
+# Let's Connect!
+
+<!-- TEMPLATE INSTRUCTION: ENGAGEMENT - Ken's Style
+Ken invites questions and corrections
+Emphasizes collaboration and learning together
+Often includes Twitter/Mastodon/GitHub
+Uses friendly, welcoming tone
+-->
+
+*Have questions, suggestions, or spot an error? Let me know!*
+
+- **Twitter/X**: [@rgt47](https://twitter.com/rgt47)
+- **Mastodon**: [@your_mastodon](https://mastodon.social/@username)
+- **GitHub**: [rgt47](https://github.com/rgt47)
+- **Email**: [Contact form](https://rgtlab.org/contact)
+
+**Please reach out** if you:
+- Spot errors or have corrections
+- Have suggestions for improvement
+- Want to discuss the approach
+- Have questions about implementation
+- Just want to connect! 💙
+
+---
+
+<!-- TEMPLATE INSTRUCTION: FINAL CHECKLIST - Ken Koon Wong Style
+
+This template incorporates Ken Koon Wong's blogging style:
+
+KEY CHARACTERISTICS:
+✅ Personal learning journey narrative ("I didn't know... until I learned")
+✅ Conversational, humble tone (author as learner, not expert)
+✅ Code-first presentation (~40% code, 60% explanation)
+✅ Short explanatory paragraphs (2-4 sentences between code blocks)
+✅ Liberal emoji use (🤔 ✅ ❌ 📊 💙) for visual rhythm
+✅ Casual reactions ("Wow," "Interesting," "Not too shabby!")
+✅ Clear structure: Motivations → Objectives → What is X? → Analysis
+
+SIGNATURE SECTIONS:
+✅ "Motivations" - Why this topic matters (personal reasons)
+✅ "Objectives" - Numbered list of what you'll accomplish
+✅ "What is [Topic]?" - Plain-language concept explanation
+✅ "Lessons Learnt" - Bulleted takeaways (conceptual + technical + gotchas)
+✅ "Opportunities for Improvement" - Future directions
+✅ "See Also" - Simple 3-5 links (not exhaustive bibliography)
+✅ Disclaimer - "If you spot errors, let me know! 💙"
+✅ Collaborative ending inviting feedback
+
+BEFORE PUBLISHING:
+□ Replace all [placeholders] with actual content
+□ Update subtitle with emoji and specific topic
+□ Write personal "I didn't know..." introduction
+□ List specific motivations (why YOU needed this)
+□ Define objectives as numbered list
+□ Add "What is X?" conceptual explanation
+□ Keep explanations SHORT between code blocks
+□ Add emoji reactions to results (✅ ❌ 🤔 📊)
+□ Write comprehensive "Lessons Learnt" section
+□ List "Opportunities for Improvement"
+□ Keep "See Also" to 3-5 links
+□ Verify code runs without errors
+□ Check that tone is conversational and humble
+□ Set draft: false when ready to publish
+□ Add appropriate categories
+
+TONE CHECKLIST:
+□ Uses first person "I" throughout
+□ Positions author as learner, not expert
+□ Includes emoji for visual breaks and emphasis
+□ Has casual reactions to results
+□ Invites corrections and collaboration
+□ Ends with "💙" or similar warm closing
+-->
