@@ -10,7 +10,7 @@ description: |
 image: "media/images/hero.jpg"
 ---
 
-![](thumbnail.png){.img-fluid width=40% fig-align="center"}
+![](media/images/thumbnail.png){.img-fluid width=40% fig-align="center"}
 
 ## Introduction
 
