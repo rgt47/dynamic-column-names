@@ -2,6 +2,8 @@
 title: "Dynamic Column Names in R: Seven Approaches Compared"
 author: "Zenn"
 date: "2026-02-16"
+draft: false
+document-type: 'blog'
 categories: [r, metaprogramming]
 description: |
   A comprehensive guide to adding columns with programmatically-generated
@@ -174,7 +176,7 @@ unacceptable.
 
 ---
 
-![Tidy evaluation approaches.](media/images/placeholder-coffee-01.jpg){.img-fluid}
+![Tidy evaluation approaches.](media/images/ambiance1.jpg){.img-fluid}
 
 ## Approach 3: Classic Tidyverse with `!!` and `:=`
 
@@ -327,7 +329,7 @@ data, or when you want to inspect/log expressions before evaluation.
 
 ---
 
-![High-performance alternatives.](media/images/placeholder-coffee-03.jpg){.img-fluid}
+![High-performance alternatives.](media/images/ambiance2.jpg){.img-fluid}
 
 ## Approach 6: data.table
 
